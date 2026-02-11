@@ -174,6 +174,7 @@ export default function App() {
   const [notice, setNotice] = useState("");
   const [usingDemoData, setUsingDemoData] = useState(false);
   const [exportMonth, setExportMonth] = useState(defaultMonth);
+  const [managerAccessKey, setManagerAccessKey] = useState("");
   const [selectedAssignee, setSelectedAssignee] = useState(assigneeUsers[0]?.name ?? "Kiran Rao");
   const [selectedManager, setSelectedManager] = useState(managerUsers[0]?.name ?? "Arun Prakash");
   const [managerChatInput, setManagerChatInput] = useState("");
@@ -274,8 +275,13 @@ export default function App() {
   const handleMonthlyExport = async () => {
     try {
       setError("");
+      if (!managerAccessKey.trim()) {
+        throw new Error("Manager access key is required for monthly export.");
+      }
       const [year, month] = exportMonth.split("-");
-      const res = await fetch(`${API_URL}/export/monthly?year=${year}&month=${month}`);
+      const res = await fetch(`${API_URL}/export/monthly?year=${year}&month=${month}`, {
+        headers: { "X-Manager-Key": managerAccessKey.trim() }
+      });
       if (!res.ok) throw new Error("Failed to download monthly excel");
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -357,11 +363,6 @@ export default function App() {
 
       {mode === "requester" ? (
         <>
-          <div className="export-row">
-            <input type="month" value={exportMonth} onChange={(e) => setExportMonth(e.target.value)} />
-            <button type="button" onClick={handleMonthlyExport}>Download Monthly Excel</button>
-          </div>
-
           <form onSubmit={handleSubmit} className="ticket-form">
             <select name="location" value={formData.location} onChange={handleChange} required>
               <option value="" disabled>Select Location</option>
@@ -430,6 +431,17 @@ export default function App() {
             <div className="metric-card"><p className="metric-title">RESOLVED</p><p className="metric-value">{stats.resolved}</p></div>
             <div className="metric-card"><p className="metric-title">Avg Cost / Ticket</p><p className="metric-value">{formatEuro(stats.avgCost)}</p></div>
             <div className="metric-card"><p className="metric-title">Rough Monthly Estimate</p><p className="metric-value">{formatEuro(stats.roughMonthlyEstimate)}</p></div>
+          </div>
+
+          <div className="export-row">
+            <input
+              type="password"
+              placeholder="Manager Access Key"
+              value={managerAccessKey}
+              onChange={(e) => setManagerAccessKey(e.target.value)}
+            />
+            <input type="month" value={exportMonth} onChange={(e) => setExportMonth(e.target.value)} />
+            <button type="button" onClick={handleMonthlyExport}>Download Monthly Excel</button>
           </div>
 
           <section className="ai-chatbot">

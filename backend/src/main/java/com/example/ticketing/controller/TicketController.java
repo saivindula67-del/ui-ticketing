@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -43,10 +45,16 @@ public class TicketController {
 
     private final TicketRepository ticketRepository;
     private final ManagerAiService managerAiService;
+    private final String managerAccessKey;
 
-    public TicketController(TicketRepository ticketRepository, ManagerAiService managerAiService) {
+    public TicketController(
+            TicketRepository ticketRepository,
+            ManagerAiService managerAiService,
+            @Value("${manager.access.key}") String managerAccessKey
+    ) {
         this.ticketRepository = ticketRepository;
         this.managerAiService = managerAiService;
+        this.managerAccessKey = managerAccessKey;
     }
 
     @PostMapping
@@ -100,9 +108,14 @@ public class TicketController {
 
     @GetMapping("/export/monthly")
     public ResponseEntity<ByteArrayResource> exportMonthlyTickets(
+            @RequestHeader(name = "X-Manager-Key", required = false) String providedManagerKey,
             @RequestParam int year,
             @RequestParam int month
     ) throws IOException {
+        if (providedManagerKey == null || !providedManagerKey.equals(managerAccessKey)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Manager access required for monthly export");
+        }
+
         LocalDate monthStart = LocalDate.of(year, month, 1);
         LocalDateTime start = monthStart.atStartOfDay();
         LocalDateTime end = monthStart.plusMonths(1).atStartOfDay();
