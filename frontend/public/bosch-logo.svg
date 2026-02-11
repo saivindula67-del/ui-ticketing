@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="72" viewBox="0 0 240 72" role="img" aria-label="Bosch">
+  <rect width="240" height="72" fill="#ffffff"/>
+  <g transform="translate(8 6)">
+    <circle cx="28" cy="30" r="22" fill="none" stroke="#9ca3af" stroke-width="4"/>
+    <circle cx="28" cy="30" r="14" fill="none" stroke="#9ca3af" stroke-width="4"/>
+    <rect x="24" y="16" width="8" height="28" fill="#9ca3af"/>
+  </g>
+  <text x="74" y="45" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700" fill="#dc2626" letter-spacing="1">BOSCH</text>
+</svg>

@@ -1,0 +1,290 @@
+:root {
+  font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #1f2937;
+  background: #edf2f7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.container {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.app-header {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #f9fafb;
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.16);
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bosch-logo {
+  width: 92px;
+  height: auto;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.brand {
+  margin: 0;
+  letter-spacing: 0.06em;
+  font-size: 28px;
+}
+
+.brand-subtitle {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+h1,
+h2 {
+  margin-bottom: 12px;
+}
+
+.demo-note {
+  margin-top: -2px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.success {
+  margin-top: -2px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #065f46;
+}
+
+.export-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.team-section {
+  margin-bottom: 16px;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.team-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.team-name {
+  margin: 0 0 4px;
+  font-weight: 700;
+}
+
+.team-role {
+  margin: 0;
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.export-row input,
+.export-row button {
+  max-width: 260px;
+}
+
+.mode-switch {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mode-switch button {
+  max-width: 220px;
+}
+
+.active-tab {
+  background: #0f766e;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+}
+
+.ai-chatbot {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.chat-window {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 120px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.chat-bubble.bot {
+  background: #e0f2fe;
+}
+
+.chat-bubble.user {
+  background: #dcfce7;
+  margin-left: auto;
+}
+
+.chart-box {
+  margin-top: 10px;
+  background: #fff;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.chat-input-row {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  gap: 10px;
+}
+
+.assignee-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.assignee-bar label {
+  min-width: 70px;
+}
+
+.manager-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.metric-card {
+  background: #fff;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+}
+
+.metric-title {
+  margin: 0 0 6px;
+  color: #4b5563;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.metric-value {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.ticket-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.ticket-form textarea,
+.ticket-form button {
+  grid-column: 1 / -1;
+}
+
+input,
+select,
+textarea,
+button {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+button {
+  cursor: pointer;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  color: #fff;
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
+}
+
+button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #dc2626;
+}
+
+.ticket-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.ticket-card {
+  background: white;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.07);
+}
+
+@media (max-width: 700px) {
+  .chat-input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mode-switch {
+    flex-direction: column;
+  }
+
+  .ticket-form {
+    grid-template-columns: 1fr;
+  }
+}
