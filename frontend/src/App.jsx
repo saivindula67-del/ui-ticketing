@@ -95,6 +95,13 @@ const getModeFromHash = () => {
   const raw = (window.location.hash || "").replace("#", "").toLowerCase();
   return raw === "requester" || raw === "assignee" || raw === "manager" ? raw : "requester";
 };
+const LOGIN_USERS = {
+  requester: [{ username: "user", password: "user123", name: "Requester User" }],
+  itl: [{ username: "itlteam", password: "itl123", name: "ITL Team" }],
+  manager: [{ username: "manager", password: "manager123", name: "Manager" }]
+};
+const ROLE_TO_MODE = { requester: "requester", itl: "assignee", manager: "manager" };
+const MODE_LABELS = { requester: "Ticket Raising User", assignee: "Assigned To", manager: "Manager" };
 
 ChartJS.register(CategoryScale, LinearScale, RadialLinearScale, BarElement, LineElement, PointElement, ArcElement, Tooltip, Legend);
 
@@ -167,6 +174,9 @@ export default function App() {
   const managerUsers = TEAM_DIRECTORY.filter((m) => m.role === "Manager" || m.role === "Group Manager");
 
   const [mode, setMode] = useState(getModeFromHash());
+  const [authUser, setAuthUser] = useState(null);
+  const [loginForm, setLoginForm] = useState({ role: "requester", username: "", password: "" });
+  const [loginError, setLoginError] = useState("");
   const [formData, setFormData] = useState(initialForm);
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -179,6 +189,7 @@ export default function App() {
   const [selectedManager, setSelectedManager] = useState(managerUsers[0]?.name ?? "Arun Prakash");
   const [managerChatInput, setManagerChatInput] = useState("");
   const [managerChatMessages, setManagerChatMessages] = useState([{ role: "bot", text: "Manager AI Assistant: ask anything about tickets. I will answer and show a chart." }]);
+  const availableModes = authUser ? [ROLE_TO_MODE[authUser.role]] : [];
 
   const stats = useMemo(() => getTicketStats(tickets), [tickets]);
   const assigneeLoad = useMemo(() => {
@@ -212,13 +223,67 @@ export default function App() {
 
   useEffect(() => { loadTickets(); }, []);
   useEffect(() => {
+    const stored = sessionStorage.getItem("ticketing_auth_user");
+    if (!stored) return;
+    try {
+      const parsed = JSON.parse(stored);
+      if (parsed?.role && ROLE_TO_MODE[parsed.role]) {
+        setAuthUser(parsed);
+        const nextMode = ROLE_TO_MODE[parsed.role];
+        setMode(nextMode);
+        window.location.hash = nextMode;
+      }
+    } catch (_) {
+      sessionStorage.removeItem("ticketing_auth_user");
+    }
+  }, []);
+  useEffect(() => {
     const onHashChange = () => setMode(getModeFromHash());
     window.addEventListener("hashchange", onHashChange);
     if (!window.location.hash) window.location.hash = "requester";
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
+  useEffect(() => {
+    if (!authUser) return;
+    const allowedMode = ROLE_TO_MODE[authUser.role];
+    if (mode !== allowedMode) {
+      setMode(allowedMode);
+      window.location.hash = allowedMode;
+    }
+  }, [authUser, mode]);
 
-  const switchMode = (nextMode) => { window.location.hash = nextMode; };
+  const switchMode = (nextMode) => {
+    if (!authUser) return;
+    if (!availableModes.includes(nextMode)) return;
+    window.location.hash = nextMode;
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setLoginError("");
+    const users = LOGIN_USERS[loginForm.role] || [];
+    const matched = users.find(
+      (u) => u.username.toLowerCase() === loginForm.username.trim().toLowerCase() && u.password === loginForm.password
+    );
+    if (!matched) {
+      setLoginError("Invalid credentials for selected role.");
+      return;
+    }
+    const user = { name: matched.name, role: loginForm.role };
+    setAuthUser(user);
+    sessionStorage.setItem("ticketing_auth_user", JSON.stringify(user));
+    const nextMode = ROLE_TO_MODE[user.role];
+    setMode(nextMode);
+    window.location.hash = nextMode;
+    setLoginForm((prev) => ({ ...prev, password: "" }));
+  };
+
+  const handleLogout = () => {
+    setAuthUser(null);
+    sessionStorage.removeItem("ticketing_auth_user");
+    setMode("requester");
+    window.location.hash = "requester";
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -339,6 +404,56 @@ export default function App() {
     }
   };
 
+  if (!authUser) {
+    return (
+      <div className="container">
+        <header className="app-header">
+          <div className="brand-row">
+            <img src="/bosch-logo.svg" alt="Bosch logo" className="bosch-logo" />
+            <div>
+              <h1 className="brand">ITL</h1>
+              <p className="brand-subtitle">Bosch Service Desk</p>
+            </div>
+          </div>
+        </header>
+
+        <section className="login-card">
+          <h2>Sign In</h2>
+          <p className="login-hint">Use your role-based credentials to continue.</p>
+          {loginError ? <p className="error">{loginError}</p> : null}
+          <form className="login-form" onSubmit={handleLogin}>
+            <select
+              value={loginForm.role}
+              onChange={(e) => setLoginForm((prev) => ({ ...prev, role: e.target.value }))}
+            >
+              <option value="requester">User</option>
+              <option value="itl">ITL Team</option>
+              <option value="manager">Manager</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Username"
+              value={loginForm.username}
+              onChange={(e) => setLoginForm((prev) => ({ ...prev, username: e.target.value }))}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={loginForm.password}
+              onChange={(e) => setLoginForm((prev) => ({ ...prev, password: e.target.value }))}
+              required
+            />
+            <button type="submit">Login</button>
+          </form>
+          <p className="login-help">
+            Demo users: `user/user123`, `itlteam/itl123`, `manager/manager123`
+          </p>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="container">
       <header className="app-header">
@@ -349,12 +464,18 @@ export default function App() {
             <p className="brand-subtitle">Bosch Service Desk</p>
           </div>
         </div>
+        <div className="auth-row">
+          <p className="brand-subtitle">Signed in: {authUser.name} ({authUser.role.toUpperCase()})</p>
+          <button type="button" className="logout-button" onClick={handleLogout}>Logout</button>
+        </div>
       </header>
 
       <div className="mode-switch">
-        <button type="button" className={mode === "requester" ? "active-tab" : ""} onClick={() => switchMode("requester")}>Ticket Raising User</button>
-        <button type="button" className={mode === "assignee" ? "active-tab" : ""} onClick={() => switchMode("assignee")}>Assigned To</button>
-        <button type="button" className={mode === "manager" ? "active-tab" : ""} onClick={() => switchMode("manager")}>Manager</button>
+        {availableModes.map((key) => (
+          <button key={key} type="button" className={mode === key ? "active-tab" : ""} onClick={() => switchMode(key)}>
+            {MODE_LABELS[key]}
+          </button>
+        ))}
       </div>
 
       {usingDemoData && <p className="demo-note">Demo mode enabled</p>}

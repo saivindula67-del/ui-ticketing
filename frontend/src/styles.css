@@ -33,6 +33,14 @@ body {
   gap: 12px;
 }
 
+.auth-row {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .bosch-logo {
   width: 92px;
   height: auto;
@@ -124,6 +132,45 @@ h2 {
 .active-tab {
   background: #0f766e;
   box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+}
+
+.logout-button {
+  width: auto;
+  padding: 8px 14px;
+  background: #334155;
+}
+
+.logout-button:hover {
+  box-shadow: 0 6px 14px rgba(51, 65, 85, 0.35);
+}
+
+.login-card {
+  max-width: 460px;
+  margin: 24px auto 0;
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.login-card h2 {
+  margin: 0 0 6px;
+}
+
+.login-hint {
+  margin: 0 0 14px;
+  color: #475569;
+}
+
+.login-help {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.login-form {
+  display: grid;
+  gap: 10px;
 }
 
 .ai-chatbot {
@@ -276,6 +323,11 @@ button:disabled {
 }
 
 @media (max-width: 700px) {
+  .auth-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .chat-input-row {
     grid-template-columns: 1fr;
   }
