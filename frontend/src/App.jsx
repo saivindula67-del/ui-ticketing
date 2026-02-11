@@ -91,16 +91,16 @@ const getCostFromDhDeptCode = (code, aclType) => {
   const multiplier = aclType === "ACL" ? 1.18 : 1;
   return (base * multiplier).toFixed(2);
 };
-const getModeFromHash = () => {
-  const raw = (window.location.hash || "").replace("#", "").toLowerCase();
-  return raw === "requester" || raw === "assignee" || raw === "manager" ? raw : "requester";
-};
 const LOGIN_USERS = {
   requester: [{ username: "user", password: "user123", name: "Requester User" }],
   itl: [{ username: "itlteam", password: "itl123", name: "ITL Team" }],
   manager: [{ username: "manager", password: "manager123", name: "Manager" }]
 };
-const ROLE_TO_MODE = { requester: "requester", itl: "assignee", manager: "manager" };
+const ROLE_TO_MODES = {
+  requester: ["requester"],
+  itl: ["requester", "assignee"],
+  manager: ["manager"]
+};
 const MODE_LABELS = { requester: "Ticket Raising User", assignee: "Assigned To", manager: "Manager" };
 
 ChartJS.register(CategoryScale, LinearScale, RadialLinearScale, BarElement, LineElement, PointElement, ArcElement, Tooltip, Legend);
@@ -173,7 +173,7 @@ export default function App() {
   const assigneeUsers = TEAM_DIRECTORY.filter((m) => m.role === "Team Lead" || m.role === "Team Member");
   const managerUsers = TEAM_DIRECTORY.filter((m) => m.role === "Manager" || m.role === "Group Manager");
 
-  const [mode, setMode] = useState(getModeFromHash());
+  const [mode, setMode] = useState("requester");
   const [authUser, setAuthUser] = useState(null);
   const [loginForm, setLoginForm] = useState({ role: "requester", username: "", password: "" });
   const [loginError, setLoginError] = useState("");
@@ -189,7 +189,7 @@ export default function App() {
   const [selectedManager, setSelectedManager] = useState(managerUsers[0]?.name ?? "Arun Prakash");
   const [managerChatInput, setManagerChatInput] = useState("");
   const [managerChatMessages, setManagerChatMessages] = useState([{ role: "bot", text: "Manager AI Assistant: ask anything about tickets. I will answer and show a chart." }]);
-  const availableModes = authUser ? [ROLE_TO_MODE[authUser.role]] : [];
+  const availableModes = authUser ? (ROLE_TO_MODES[authUser.role] || []) : [];
 
   const stats = useMemo(() => getTicketStats(tickets), [tickets]);
   const assigneeLoad = useMemo(() => {
@@ -227,35 +227,30 @@ export default function App() {
     if (!stored) return;
     try {
       const parsed = JSON.parse(stored);
-      if (parsed?.role && ROLE_TO_MODE[parsed.role]) {
+      if (parsed?.role && ROLE_TO_MODES[parsed.role]?.length) {
         setAuthUser(parsed);
-        const nextMode = ROLE_TO_MODE[parsed.role];
+        const nextMode = ROLE_TO_MODES[parsed.role][0];
         setMode(nextMode);
-        window.location.hash = nextMode;
       }
     } catch (_) {
       sessionStorage.removeItem("ticketing_auth_user");
     }
   }, []);
   useEffect(() => {
-    const onHashChange = () => setMode(getModeFromHash());
-    window.addEventListener("hashchange", onHashChange);
-    if (!window.location.hash) window.location.hash = "requester";
-    return () => window.removeEventListener("hashchange", onHashChange);
-  }, []);
-  useEffect(() => {
-    if (!authUser) return;
-    const allowedMode = ROLE_TO_MODE[authUser.role];
-    if (mode !== allowedMode) {
-      setMode(allowedMode);
-      window.location.hash = allowedMode;
+    if (!authUser) {
+      setMode("requester");
+      return;
+    }
+    const allowedModes = ROLE_TO_MODES[authUser.role] || [];
+    if (!allowedModes.includes(mode)) {
+      setMode(allowedModes[0] || "requester");
     }
   }, [authUser, mode]);
 
   const switchMode = (nextMode) => {
     if (!authUser) return;
     if (!availableModes.includes(nextMode)) return;
-    window.location.hash = nextMode;
+    setMode(nextMode);
   };
 
   const handleLogin = (e) => {
@@ -272,17 +267,22 @@ export default function App() {
     const user = { name: matched.name, role: loginForm.role };
     setAuthUser(user);
     sessionStorage.setItem("ticketing_auth_user", JSON.stringify(user));
-    const nextMode = ROLE_TO_MODE[user.role];
+    const nextMode = (ROLE_TO_MODES[user.role] || ["requester"])[0];
+    setError("");
+    setNotice("");
     setMode(nextMode);
-    window.location.hash = nextMode;
-    setLoginForm((prev) => ({ ...prev, password: "" }));
+    setLoginForm((prev) => ({ ...prev, username: "", password: "" }));
   };
 
   const handleLogout = () => {
     setAuthUser(null);
     sessionStorage.removeItem("ticketing_auth_user");
+    setLoginError("");
+    setError("");
+    setNotice("");
+    setFormData(initialForm);
+    setLoginForm({ role: "requester", username: "", password: "" });
     setMode("requester");
-    window.location.hash = "requester";
   };
 
   const handleChange = (e) => {
@@ -502,6 +502,7 @@ export default function App() {
             <input name="dhDeptCode" placeholder="DH Dept Code (IT/CS/EE/ME/EC/ADM)" value={formData.dhDeptCode} onChange={handleChange} required />
             <input name="cost" type="number" min="0" step="0.01" placeholder="Cost (EUR)" value={formData.cost} readOnly required />
             <textarea name="issueDescription" placeholder="Issue Description" value={formData.issueDescription} onChange={handleChange} rows={4} required />
+            <p className="form-note">`Ticket To Be Issued`, `ACL Type`, and `Cost` are auto-generated based on location/department rules.</p>
             <button type="button" onClick={handleCreateTicketClick} disabled={loading}>{loading ? "Submitting..." : "Create Ticket"}</button>
           </form>
         </>
