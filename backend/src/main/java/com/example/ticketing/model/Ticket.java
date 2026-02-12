@@ -35,6 +35,9 @@ public class Ticket {
 
     private String status;
     private LocalDateTime createdAt;
+    private LocalDateTime inProgressAt;
+    private LocalDateTime completedAt;
+    private Double effortHours;
 
     @PrePersist
     public void onCreate() {
@@ -162,5 +165,29 @@ public class Ticket {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getInProgressAt() {
+        return inProgressAt;
+    }
+
+    public void setInProgressAt(LocalDateTime inProgressAt) {
+        this.inProgressAt = inProgressAt;
+    }
+
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(LocalDateTime completedAt) {
+        this.completedAt = completedAt;
+    }
+
+    public Double getEffortHours() {
+        return effortHours;
+    }
+
+    public void setEffortHours(Double effortHours) {
+        this.effortHours = effortHours;
     }
 }

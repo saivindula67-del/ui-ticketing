@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Duration;
 import java.util.Locale;
 import java.util.List;
 
@@ -64,8 +65,21 @@ public class TicketController {
     }
 
     @GetMapping
-    public List<Ticket> getAllTickets() {
-        return ticketRepository.findAll();
+    public List<Ticket> getAllTickets(
+            @RequestHeader(name = "X-User-Role", required = false) String roleHeader,
+            @RequestHeader(name = "X-User-Name", required = false) String userNameHeader
+    ) {
+        AccessContext access = accessContext(roleHeader, userNameHeader);
+        List<Ticket> allTickets = ticketRepository.findAll();
+        if (access.isManager) {
+            return allTickets;
+        }
+        if (access.isItl) {
+            return allTickets.stream()
+                    .filter(t -> extractAssigneeName(t.getTicketToBeIssued()).equalsIgnoreCase(access.userName))
+                    .toList();
+        }
+        return allTickets;
     }
 
     @PostMapping("/manager-chat")
@@ -75,10 +89,50 @@ public class TicketController {
     }
 
     @PutMapping("/{ticketId}/status")
-    public Ticket updateTicketStatus(@PathVariable Long ticketId, @RequestParam String status) {
+    public Ticket updateTicketStatus(
+            @PathVariable Long ticketId,
+            @RequestParam String status,
+            @RequestHeader(name = "X-User-Role", required = false) String roleHeader,
+            @RequestHeader(name = "X-User-Name", required = false) String userNameHeader
+    ) {
+        AccessContext access = accessContext(roleHeader, userNameHeader);
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found"));
-        ticket.setStatus(status);
+
+        if (access.isItl) {
+            String assignedName = extractAssigneeName(ticket.getTicketToBeIssued());
+            if (!assignedName.equalsIgnoreCase(access.userName)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "ITL member can update only self-assigned tickets");
+            }
+        }
+
+        String normalizedStatus = safe(status).toUpperCase(Locale.ROOT).trim();
+        LocalDateTime now = LocalDateTime.now();
+
+        if ("IN_PROGRESS".equals(normalizedStatus)) {
+            if (ticket.getInProgressAt() == null) {
+                ticket.setInProgressAt(now);
+            }
+            ticket.setCompletedAt(null);
+            ticket.setEffortHours(null);
+        } else if ("RESOLVED".equals(normalizedStatus)) {
+            if (ticket.getInProgressAt() == null) {
+                ticket.setInProgressAt(now);
+            }
+            ticket.setCompletedAt(now);
+            double effortHours = calculateEffortHours(ticket.getInProgressAt(), ticket.getCompletedAt());
+            ticket.setEffortHours(effortHours);
+            ticket.setCost(BigDecimal.valueOf(effortHours * getHourlyRateByAclType(ticket.getAclType()))
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .toPlainString());
+        } else if ("OPEN".equals(normalizedStatus)) {
+            ticket.setInProgressAt(null);
+            ticket.setCompletedAt(null);
+            ticket.setEffortHours(null);
+            applyDerivedFields(ticket);
+        }
+
+        ticket.setStatus(normalizedStatus);
         return ticketRepository.save(ticket);
     }
 
@@ -151,6 +205,9 @@ public class TicketController {
             headerRow.createCell(12).setCellValue("Cost");
             headerRow.createCell(13).setCellValue("Issue Description");
             headerRow.createCell(14).setCellValue("Status");
+            headerRow.createCell(15).setCellValue("In Progress At");
+            headerRow.createCell(16).setCellValue("Completed At");
+            headerRow.createCell(17).setCellValue("Effort Hours");
 
             int rowIndex = 1;
             for (Ticket ticket : tickets) {
@@ -170,9 +227,12 @@ public class TicketController {
                 row.createCell(12).setCellValue(safe(ticket.getCost()));
                 row.createCell(13).setCellValue(safe(ticket.getIssueDescription()));
                 row.createCell(14).setCellValue(safe(ticket.getStatus()));
+                row.createCell(15).setCellValue(ticket.getInProgressAt() != null ? ticket.getInProgressAt().toString() : "");
+                row.createCell(16).setCellValue(ticket.getCompletedAt() != null ? ticket.getCompletedAt().toString() : "");
+                row.createCell(17).setCellValue(ticket.getEffortHours() != null ? ticket.getEffortHours() : 0);
             }
 
-            for (int i = 0; i <= 14; i++) {
+            for (int i = 0; i <= 17; i++) {
                 sheet.autoSizeColumn(i);
             }
 
@@ -188,6 +248,40 @@ public class TicketController {
     private double round(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
+
+    private double getHourlyRateByAclType(String aclType) {
+        return "ACL".equalsIgnoreCase(safe(aclType)) ? 42.0 : 28.0;
+    }
+
+    private double calculateEffortHours(LocalDateTime inProgressAt, LocalDateTime completedAt) {
+        long minutes = Duration.between(inProgressAt, completedAt).toMinutes();
+        if (minutes < 0) {
+            minutes = 0;
+        }
+        return BigDecimal.valueOf(minutes / 60.0).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
+
+    private AccessContext accessContext(String roleHeader, String userNameHeader) {
+        String role = safe(roleHeader).toLowerCase(Locale.ROOT).trim();
+        String userName = safe(userNameHeader).trim();
+        if (role.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User role header is required");
+        }
+        boolean isManager = "manager".equals(role);
+        boolean isItl = "itl".equals(role);
+        if (isItl && userName.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "ITL access requires user name");
+        }
+        return new AccessContext(isManager, isItl, userName);
+    }
+
+    private String extractAssigneeName(String assigneeField) {
+        String raw = safe(assigneeField);
+        int roleIndex = raw.indexOf(" (");
+        return (roleIndex > 0 ? raw.substring(0, roleIndex) : raw).trim();
+    }
+
+    private record AccessContext(boolean isManager, boolean isItl, String userName) {}
 
     private void applyDerivedFields(Ticket ticket) {
         String gbCode = safe(ticket.getGbCode()).toUpperCase(Locale.ROOT).trim();

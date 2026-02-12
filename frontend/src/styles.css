@@ -116,6 +116,23 @@ h2 {
   color: #065f46;
 }
 
+.ticket-receipt {
+  background: #ecfdf5;
+  border: 1px solid #34d399;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.ticket-receipt h3 {
+  margin: 0 0 8px;
+  color: #065f46;
+}
+
+.ticket-receipt p {
+  margin: 4px 0;
+}
+
 .export-row {
   display: flex;
   gap: 12px;
