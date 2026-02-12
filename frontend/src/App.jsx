@@ -14,22 +14,36 @@ import {
 import { Bar, Doughnut, Line, PolarArea, Radar } from "react-chartjs-2";
 
 const API_URL = "http://localhost:8081/api/tickets";
+// People & Roles
 const TEAM_DIRECTORY = [
-  { name: "Arun Prakash", role: "Group Manager" },
-  { name: "Neha Verma", role: "Manager" },
-  { name: "Kiran Rao", role: "Team Lead" },
-  { name: "Rahul Nair", role: "Team Member" },
-  { name: "Pooja Sharma", role: "Team Member" },
-  { name: "Vikram Das", role: "Team Member" },
-  { name: "Meena Joseph", role: "Team Member" }
+  { name: "Shamji", role: "Group Manager" },
+  { name: "Raj Kumar Dahal", role: "Manager" },
+  { name: "Manikandan Kumar", role: "Team Lead" },
+  { name: "Tamilarasan P", role: "Team Member" },
+  { name: "Arunkumar M", role: "Team Member" },
+  { name: "Jagadish Sai V", role: "Team Member" },
+  { name: "K G Karthi", role: "Team Member" }
 ];
-const DH_DEPT_COST_MAP = { IT: 1200, CS: 1500, EE: 1300, ME: 1400, EC: 1350, ADM: 900 };
-const STATIC_LOCATION_TEAM = {
-  COB: ["Rahul Nair", "Pooja Sharma"],
-  ADU: ["Vikram Das"],
-  KOR: ["Meena Joseph"]
+
+// Location-based visible team (fixed)
+const STATIC_LOCATION_TEAM: Record<string, string[]> = {
+  COB: ["Tamilarasan P", "Arunkumar M"],
+  ADU: ["Jagadish Sai V"],
+  KOR: ["K G Karthi"]
 };
-const PRIORITY_SUPPORT_TEAM = ["Rahul Nair", "Pooja Sharma", "Vikram Das", "Meena Joseph"];
+
+// Priority pool used when location is not fixed in STATIC_LOCATION_TEAM
+const PRIORITY_SUPPORT_TEAM = [
+  "Tamilarasan P",
+  "Arunkumar M",
+  "Jagadish Sai V",
+  "K G Karthi"
+];
+
+const TEAM_ROLE_BY_NAME = TEAM_DIRECTORY.reduce(
+  (acc, member) => ({ ...acc, [member.name]: member.role }),
+  {} as Record<string, string>
+);
 
 const TEAM_ROLE_BY_NAME = TEAM_DIRECTORY.reduce((acc, member) => ({ ...acc, [member.name]: member.role }), {});
 const formatAssignee = (name) => {
