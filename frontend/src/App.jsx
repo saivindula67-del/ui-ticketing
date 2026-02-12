@@ -12,6 +12,8 @@ import {
   Tooltip
 } from "chart.js";
 import { Bar, Doughnut, Line, PolarArea, Radar } from "react-chartjs-2";
+<div className="gradient-top"></div>
+<div className="gradient-bottom"></div>
 
 const API_URL = "http://localhost:8081/api/tickets";
 
