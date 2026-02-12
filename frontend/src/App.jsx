@@ -66,9 +66,54 @@ const getAssigneeForLocation = (locationCode, assigneeLoad) => {
 };
 
 const DEMO_TICKETS = [
-  { id: "demo-1", location: "COB", ticketRaised: "Anita Sharma", ticketToBeIssued: "Rahul Nair (Team Member)", gbCode: "NE-XC", aclType: "ACL", building: "Engineering Block A", floor: "2", labNo: "LAB-203", dhDeptCode: "EE", dhName: "Dr. Patel", cost: "1534.00", issueDescription: "Projector is flickering during lectures.", status: "OPEN" },
-  { id: "demo-2", location: "HYD", ticketRaised: "Rohan Gupta", ticketToBeIssued: "Pooja Sharma (Team Member)", gbCode: "NE-PG", aclType: "ACL", building: "Computer Science Wing", floor: "1", labNo: "LAB-107", dhDeptCode: "CS", dhName: "Ms. Johnson", cost: "1770.00", issueDescription: "12 systems need OS reinstallation and patching.", status: "IN_PROGRESS" },
-  { id: "demo-3", location: "ADU", ticketRaised: "Meera Iyer", ticketToBeIssued: "Vikram Das (Team Member)", gbCode: "2WP", aclType: "NON ACL", building: "Innovation Center", floor: "Ground", labNo: "LAB-011", dhDeptCode: "EC", dhName: "Mr. Lee", cost: "1350.00", issueDescription: "Biometric access device not syncing with server.", status: "RESOLVED" }
+  {
+    id: "demo-1",
+    location: "COB",
+    ticketRaised: "Anita Sharma",
+    ticketToBeIssued: "Tamilarasan P (Team Member)",
+    gbCode: "NE-XC",
+    aclType: "ACL",
+    building: "Engineering Block A",
+    floor: "2",
+    labNo: "LAB-203",
+    dhDeptCode: "EE",
+    dhName: "Dr. Patel",
+    cost: "1534.00",
+    issueDescription: "Projector is flickering during lectures.",
+    status: "OPEN"
+  },
+  {
+    id: "demo-2",
+    location: "HYD",
+    ticketRaised: "Rohan Gupta",
+    ticketToBeIssued: "Arunkumar M (Team Member)",
+    gbCode: "NE-PG",
+    aclType: "ACL",
+    building: "Computer Science Wing",
+    floor: "1",
+    labNo: "LAB-107",
+    dhDeptCode: "CS",
+    dhName: "Ms. Johnson",
+    cost: "1770.00",
+    issueDescription: "12 systems need OS reinstallation and patching.",
+    status: "IN_PROGRESS"
+  },
+  {
+    id: "demo-3",
+    location: "ADU",
+    ticketRaised: "Meera Iyer",
+    ticketToBeIssued: "Jagadish Sai V (Team Member)",
+    gbCode: "2WP",
+    aclType: "NON ACL",
+    building: "Innovation Center",
+    floor: "Ground",
+    labNo: "LAB-011",
+    dhDeptCode: "EC",
+    dhName: "Mr. Lee",
+    cost: "1350.00",
+    issueDescription: "Biometric access device not syncing with server.",
+    status: "RESOLVED"
+  }
 ];
 
 const initialForm = {
