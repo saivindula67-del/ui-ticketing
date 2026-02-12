@@ -52,9 +52,9 @@ const getAssigneeForLocation = (locationCode, assigneeLoad) => {
 };
 
 const DEMO_TICKETS = [
-  { id: "demo-1", location: "COB", ticketRaised: "Anita Sharma", ticketToBeIssued: "Rahul Nair (Team Member)", gbCode: "GB1", aclType: "ACL", building: "Engineering Block A", floor: "2", labNo: "LAB-203", dhDeptCode: "EE", dhName: "Dr. Patel", cost: "1534.00", issueDescription: "Projector is flickering during lectures.", status: "OPEN" },
-  { id: "demo-2", location: "HYD", ticketRaised: "Rohan Gupta", ticketToBeIssued: "Pooja Sharma (Team Member)", gbCode: "GB2", aclType: "ACL", building: "Computer Science Wing", floor: "1", labNo: "LAB-107", dhDeptCode: "CS", dhName: "Ms. Johnson", cost: "1770.00", issueDescription: "12 systems need OS reinstallation and patching.", status: "IN_PROGRESS" },
-  { id: "demo-3", location: "ADU", ticketRaised: "Meera Iyer", ticketToBeIssued: "Vikram Das (Team Member)", gbCode: "NGB1", aclType: "NON ACL", building: "Innovation Center", floor: "Ground", labNo: "LAB-011", dhDeptCode: "EC", dhName: "Mr. Lee", cost: "1350.00", issueDescription: "Biometric access device not syncing with server.", status: "RESOLVED" }
+  { id: "demo-1", location: "COB", ticketRaised: "Anita Sharma", ticketToBeIssued: "Rahul Nair (Team Member)", gbCode: "NE-XC", aclType: "ACL", building: "Engineering Block A", floor: "2", labNo: "LAB-203", dhDeptCode: "EE", dhName: "Dr. Patel", cost: "1534.00", issueDescription: "Projector is flickering during lectures.", status: "OPEN" },
+  { id: "demo-2", location: "HYD", ticketRaised: "Rohan Gupta", ticketToBeIssued: "Pooja Sharma (Team Member)", gbCode: "NE-PG", aclType: "ACL", building: "Computer Science Wing", floor: "1", labNo: "LAB-107", dhDeptCode: "CS", dhName: "Ms. Johnson", cost: "1770.00", issueDescription: "12 systems need OS reinstallation and patching.", status: "IN_PROGRESS" },
+  { id: "demo-3", location: "ADU", ticketRaised: "Meera Iyer", ticketToBeIssued: "Vikram Das (Team Member)", gbCode: "2WP", aclType: "NON ACL", building: "Innovation Center", floor: "Ground", labNo: "LAB-011", dhDeptCode: "EC", dhName: "Mr. Lee", cost: "1350.00", issueDescription: "Biometric access device not syncing with server.", status: "RESOLVED" }
 ];
 
 const initialForm = {
@@ -499,7 +499,7 @@ export default function App() {
             <input name="floor" placeholder="Floor" value={formData.floor} onChange={handleChange} required />
             <input name="labNo" placeholder="Lab No" value={formData.labNo} onChange={handleChange} required />
             <input name="dhName" placeholder="DH Name" value={formData.dhName} onChange={handleChange} required />
-            <input name="dhDeptCode" placeholder="DH Dept Code (IT/CS/EE/ME/EC/ADM)" value={formData.dhDeptCode} onChange={handleChange} required />
+            <input name="dhDeptCode" placeholder="DH Dept Code (MS/NE-XC/NE-PG/2WP/NE-PS/ADM)" value={formData.dhDeptCode} onChange={handleChange} required />
             <input name="cost" type="number" min="0" step="0.01" placeholder="Cost (EUR)" value={formData.cost} readOnly required />
             <textarea name="issueDescription" placeholder="Issue Description" value={formData.issueDescription} onChange={handleChange} rows={4} required />
             <p className="form-note">`Ticket To Be Issued`, `ACL Type`, and `Cost` are auto-generated based on location/department rules.</p>
