@@ -60,7 +60,43 @@ body {
   font-size: 13px;
   color: #cbd5e1;
 }
+/* ----------------------------------------------------------
+   BOSCH MULTICOLOR GRADIENT BARS (TOP & BOTTOM)
+---------------------------------------------------------- */
 
+.gradient-top,
+.gradient-bottom {
+  height: 8px;
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    #c40000,
+    #8a1b78,
+    #4a2d8b,
+    #003b8e,
+    #0069b4,
+    #00bfe6,
+    #33c27f,
+    #8cc63f
+  );
+  border-radius: 0;
+}
+
+/* Top bar positioned above everything */
+.gradient-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+/* Bottom bar sticks to the bottom */
+.gradient-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+}
 h1,
 h2 {
   margin-bottom: 12px;
